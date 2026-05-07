@@ -6,63 +6,216 @@
   <title>Generador de Prompts: Separador Escolar</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="/_sdk/element_sdk.js"></script>
-  <style>body { box-sizing: border-box; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <style>
+   * { box-sizing: border-box; }
+   html, body { min-height: 100%; }
+   body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #162033;
+   }
+   .app-bg {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+     radial-gradient(circle at 12% 10%, rgba(167, 139, 250, .38), transparent 32%),
+     radial-gradient(circle at 88% 8%, rgba(96, 165, 250, .35), transparent 30%),
+     radial-gradient(circle at 72% 82%, rgba(216, 180, 254, .28), transparent 34%),
+     linear-gradient(135deg, #f8f7ff 0%, #edf5ff 42%, #ffffff 100%);
+   }
+   .app-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+     linear-gradient(rgba(99, 102, 241, .055) 1px, transparent 1px),
+     linear-gradient(90deg, rgba(99, 102, 241, .055) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,.85), transparent 82%);
+   }
+   .glass-card {
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(255, 255, 255, .72);
+    box-shadow: 0 24px 70px rgba(88, 96, 135, .14);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+   }
+   .glass-inner {
+    background: rgba(255, 255, 255, .62);
+    border: 1px solid rgba(226, 232, 240, .78);
+    box-shadow: 0 18px 45px rgba(99, 102, 241, .09);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+   }
+   .field-control {
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(203, 213, 225, .75);
+    background: rgba(255, 255, 255, .78);
+    padding: 12px 15px;
+    color: #1e293b;
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .2s ease;
+   }
+   .field-control::placeholder { color: #94a3b8; }
+   .field-control:focus {
+    border-color: rgba(124, 58, 237, .55);
+    background: rgba(255, 255, 255, .95);
+    box-shadow: 0 0 0 5px rgba(124, 58, 237, .10), 0 14px 30px rgba(96, 165, 250, .12);
+   }
+   .soft-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: #334155;
+   }
+   .helper-text {
+    margin-top: 7px;
+    color: #64748b;
+    font-size: .76rem;
+    line-height: 1.35;
+   }
+   .preview-panel {
+    background:
+     radial-gradient(circle at top left, rgba(129, 140, 248, .18), transparent 30%),
+     linear-gradient(145deg, rgba(15, 23, 42, .98), rgba(30, 41, 59, .98));
+    border: 1px solid rgba(148, 163, 184, .22);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .26);
+   }
+   .primary-btn {
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    color: #fff;
+    box-shadow: 0 16px 32px rgba(37, 99, 235, .22);
+   }
+   .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 20px 42px rgba(37, 99, 235, .30); }
+   .subtle-btn:hover { transform: translateY(-1px); }
+   #resultContainer::-webkit-scrollbar { width: 10px; }
+   #resultContainer::-webkit-scrollbar-track { background: rgba(15, 23, 42, .45); }
+   #resultContainer::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, .42); border-radius: 999px; }
+   @media (max-width: 768px) {
+    .mobile-stack { align-items: flex-start; }
+   }
+  </style>
  </head>
- <body class="m-0 p-0">
-  <div id="app" class="h-full w-full bg-slate-50 overflow-auto">
-   <div class="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-800">
-    <div class="max-w-6xl mx-auto space-y-6"><!-- Header -->
-     <header class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-center space-x-4">
-      <div class="bg-indigo-100 p-3 rounded-xl"><i data-lucide="book-open" class="w-8 h-8 text-indigo-600"></i>
-      </div>
-      <div>
-       <h1 class="text-2xl font-bold text-slate-900">Generador de Prompts: Separador Escolar</h1>
-       <p class="text-slate-500">Completa las variables para generar tu prompt exacto.</p>
+ <body>
+  <div id="app" class="h-full w-full overflow-auto">
+   <main class="app-bg p-4 md:p-8">
+    <div class="relative z-10 mx-auto max-w-7xl space-y-8">
+     <header class="glass-card rounded-[2rem] p-6 md:p-8">
+      <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+       <div class="flex items-center gap-5 mobile-stack">
+        <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] bg-white/75 shadow-lg shadow-indigo-500/10 ring-1 ring-white/80">
+         <i data-lucide="book-open" class="h-8 w-8 text-violet-600"></i>
+        </div>
+        <div>
+         <div class="mb-2 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-violet-700 ring-1 ring-violet-100">
+          <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+          Interfaz SaaS moderna
+         </div>
+         <h1 class="font-['Plus_Jakarta_Sans'] text-2xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Generador de Prompts: Separador Escolar</h1>
+         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">Completa las variables y genera un prompt listo para usar con una vista limpia, ordenada y profesional.</p>
+        </div>
+       </div>
+       <div class="hidden rounded-[1.5rem] bg-white/55 p-4 text-right ring-1 ring-white/80 md:block">
+        <p class="text-xs font-bold uppercase tracking-[.18em] text-slate-400">Formato</p>
+        <p class="mt-1 text-sm font-bold text-slate-700">20.5 cm × 28 cm</p>
+       </div>
       </div>
      </header>
-     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6"><!-- Columna Izquierda: Formulario -->
-      <div class="lg:col-span-5 space-y-6">
-       <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
-        <div class="flex justify-between items-center border-b pb-3">
-         <h2 class="text-lg font-semibold flex items-center space-x-2"><i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i> <span>Variables del Prompt</span></h2><button id="clearBtn" class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100" title="Limpiar todos los campos"> <i data-lucide="trash-2" class="w-4 h-4"></i> <span>Limpiar</span> </button>
+
+     <section class="grid grid-cols-1 gap-7 lg:grid-cols-12">
+      <aside class="lg:col-span-5">
+       <div class="glass-card rounded-[2rem] p-5 md:p-7">
+        <div class="mb-7 flex items-center justify-between gap-4 border-b border-white/70 pb-5">
+         <div>
+          <h2 class="flex items-center gap-2 font-['Plus_Jakarta_Sans'] text-xl font-extrabold text-slate-900">
+           <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-600"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+           Variables del Prompt
+          </h2>
+          <p class="mt-1 text-sm text-slate-500">Edita cada campo y la vista se actualizará al instante.</p>
+         </div>
+         <button id="clearBtn" class="subtle-btn flex items-center gap-2 rounded-2xl border border-red-100 bg-white/65 px-4 py-2.5 text-sm font-bold text-slate-500 shadow-sm transition-all hover:bg-red-50 hover:text-red-600" title="Limpiar todos los campos">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+          <span>Limpiar</span>
+         </button>
         </div>
-        <div class="space-y-4"><!-- Bimestre -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [BIMESTRE] </label> <input id="bimestre" type="text" placeholder="Ej. SEGUNDO BIMESTRE, etc." class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-          <p class="text-xs text-slate-400 mt-1">Texto para el título principal (arriba).</p>
-         </div><!-- Unidad -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [UNIDAD] </label> <input id="unidad" type="text" placeholder="Ej. SEGUNDA UNIDAD, TERCERA UNIDAD, etc." class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-          <p class="text-xs text-slate-400 mt-1">Texto para el subtítulo (debajo del bimestre).</p>
-         </div><!-- Color Intenso -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [COLOR_INTENSO] </label> <input id="colorIntenso" type="text" placeholder="Ej. Deep crimson, neon blue, vivid orange, etc." class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-          <p class="text-xs text-slate-400 mt-1">Color de fondo sólido vibrante e intenso.</p>
-         </div><!-- Personaje -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [PERSONAJE] </label> <textarea id="personaje" placeholder="Ej. Albert Einstein wearing a suit, a cute astronaut puppy..." rows="3" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
-          <p class="text-xs text-slate-400 mt-1">Descripción de la imagen de referencia o del personaje.</p>
-         </div><!-- Nombre Personaje -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [NOMBRE_PERSONAJE] </label> <input id="nombrePersonaje" type="text" placeholder="Ej. ALBERT EINSTEIN" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-          <p class="text-xs text-slate-400 mt-1">Texto principal del pie de página.</p>
-         </div><!-- Fecha Personaje -->
-         <div><label class="block text-sm font-medium text-slate-700 mb-1"> [FECHA_PERSONAJE] </label> <input id="fechaPersonaje" type="text" placeholder="Ej. 1879 - 1955" class="w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-          <p class="text-xs text-slate-400 mt-1">Fecha, año o rango de años debajo del nombre.</p>
+
+        <div class="space-y-5">
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="bimestre">[BIMESTRE]</label>
+          <input id="bimestre" type="text" placeholder="Ej. SEGUNDO BIMESTRE, etc." class="field-control">
+          <p class="helper-text">Texto para el título principal ubicado en la parte superior.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="unidad">[UNIDAD]</label>
+          <input id="unidad" type="text" placeholder="Ej. SEGUNDA UNIDAD, TERCERA UNIDAD, etc." class="field-control">
+          <p class="helper-text">Texto para el subtítulo debajo del bimestre.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="colorIntenso">[COLOR_INTENSO]</label>
+          <input id="colorIntenso" type="text" placeholder="Ej. Deep crimson, neon blue, vivid orange, etc." class="field-control">
+          <p class="helper-text">Color de fondo sólido vibrante e intenso.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="personaje">[PERSONAJE]</label>
+          <textarea id="personaje" placeholder="Ej. Albert Einstein wearing a suit, a cute astronaut puppy..." rows="3" class="field-control resize-none"></textarea>
+          <p class="helper-text">Descripción de la imagen de referencia o del personaje.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="nombrePersonaje">[NOMBRE_PERSONAJE]</label>
+          <input id="nombrePersonaje" type="text" placeholder="Ej. ALBERT EINSTEIN" class="field-control">
+          <p class="helper-text">Texto principal del pie de página.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="fechaPersonaje">[FECHA_PERSONAJE]</label>
+          <input id="fechaPersonaje" type="text" placeholder="Ej. 1879 - 1955" class="field-control">
+          <p class="helper-text">Fecha, año o rango de años debajo del nombre.</p>
          </div>
         </div>
        </div>
-      </div><!-- Columna Derecha: Resultado -->
-      <div class="lg:col-span-7 flex flex-col h-full">
-       <div class="bg-slate-900 rounded-2xl flex flex-col shadow-lg overflow-hidden h-full border border-slate-800"><!-- Toolbar -->
-        <div class="px-4 py-3 bg-slate-800 flex justify-between items-center border-b border-slate-700"><span class="text-slate-300 font-medium text-sm flex items-center space-x-2"> <span>Resultado del Prompt</span> </span> <button id="copyBtn" class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/50"> <i data-lucide="copy" class="w-4 h-4"></i> <span id="copyText">Copiar Prompt</span> </button>
-        </div><!-- Contenedor del texto -->
-        <div id="resultContainer" class="p-4 overflow-y-auto flex-1" style="scrollbar-width: thin; scrollbar-color: #334155 #0f172a;">
-         <pre id="resultText" class="text-slate-300 font-mono text-sm whitespace-pre-wrap leading-relaxed"></pre>
+      </aside>
+
+      <section class="lg:col-span-7">
+       <div class="preview-panel flex h-full min-h-[680px] flex-col overflow-hidden rounded-[2rem]">
+        <div class="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-5 py-4 backdrop-blur md:flex-row md:items-center md:justify-between">
+         <div class="flex items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-blue-200 ring-1 ring-white/10"><i data-lucide="terminal-square" class="h-5 w-5"></i></span>
+          <div>
+           <h2 class="text-sm font-extrabold text-white">Resultado del Prompt</h2>
+           <p class="text-xs text-slate-400">Vista previa en tiempo real</p>
+          </div>
+         </div>
+         <button id="copyBtn" class="primary-btn flex items-center justify-center gap-2 rounded-2xl border border-white/15 px-5 py-3 text-sm font-extrabold transition-all">
+          <i data-lucide="copy" class="h-4 w-4"></i>
+          <span id="copyText">Copiar Prompt</span>
+         </button>
+        </div>
+
+        <div id="resultContainer" class="flex-1 overflow-y-auto p-5 md:p-7" style="scrollbar-width: thin; scrollbar-color: rgba(148,163,184,.42) rgba(15,23,42,.45);">
+         <pre id="resultText" class="whitespace-pre-wrap rounded-[1.5rem] border border-white/10 bg-black/20 p-5 font-mono text-sm leading-relaxed text-slate-200 shadow-inner md:text-[15px]"></pre>
         </div>
        </div>
-      </div>
-     </div>
+      </section>
+     </section>
     </div>
-   </div>
+   </main>
   </div>
+
   <script>
     // Estado de la aplicación
     const state = {
@@ -241,9 +394,8 @@ print-ready`;
         document.execCommand('copy');
         state.copied = true;
         
-        // Cambiar apariencia del botón
-        buttons.copy.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
-        buttons.copy.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/50');
+        buttons.copy.classList.remove('primary-btn');
+        buttons.copy.classList.add('bg-emerald-500/20', 'text-emerald-200', 'border-emerald-400/40', 'shadow-none');
         
         const icon = buttons.copy.querySelector('i');
         icon.setAttribute('data-lucide', 'check');
@@ -253,8 +405,8 @@ print-ready`;
         
         setTimeout(() => {
           state.copied = false;
-          buttons.copy.classList.remove('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/50');
-          buttons.copy.classList.add('bg-indigo-600', 'hover:bg-indigo-500', 'text-white');
+          buttons.copy.classList.remove('bg-emerald-500/20', 'text-emerald-200', 'border-emerald-400/40', 'shadow-none');
+          buttons.copy.classList.add('primary-btn');
           
           const icon = buttons.copy.querySelector('i');
           icon.setAttribute('data-lucide', 'copy');
@@ -326,5 +478,5 @@ print-ready`;
     lucide.createIcons();
     updatePreview();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e7dd77ac3fa484e',t:'MTc3NTQ0NzU2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ </body>
 </html>
