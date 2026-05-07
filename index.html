@@ -128,7 +128,7 @@
        </div>
        <div class="hidden rounded-[1.5rem] bg-white/55 p-4 text-right ring-1 ring-white/80 md:block">
         <p class="text-xs font-bold uppercase tracking-[.18em] text-slate-400">Formato</p>
-        <p class="mt-1 text-sm font-bold text-slate-700">20.5 cm × 28 cm</p>
+        <p id="measureSummary" class="mt-1 text-sm font-bold text-slate-700">20.5 cm × 28 cm</p>
        </div>
       </div>
      </header>
@@ -161,6 +161,12 @@
           <label class="soft-label" for="unidad">[UNIDAD]</label>
           <input id="unidad" type="text" placeholder="Ej. SEGUNDA UNIDAD, TERCERA UNIDAD, etc." class="field-control">
           <p class="helper-text">Texto para el subtítulo debajo del bimestre.</p>
+         </div>
+
+         <div class="glass-inner rounded-[1.5rem] p-4">
+          <label class="soft-label" for="medida">[MEDIDA]</label>
+          <input id="medida" type="text" placeholder="Ej. 20.5 cm width x 28 cm height" class="field-control">
+          <p class="helper-text">Medida exacta del lienzo o formato final de impresión.</p>
          </div>
 
          <div class="glass-inner rounded-[1.5rem] p-4">
@@ -225,6 +231,7 @@
       fechaPersonaje: '',
       unidad: '',
       bimestre: '',
+      medida: '',
       copied: false
     };
 
@@ -235,7 +242,8 @@
       nombrePersonaje: document.getElementById('nombrePersonaje'),
       fechaPersonaje: document.getElementById('fechaPersonaje'),
       unidad: document.getElementById('unidad'),
-      bimestre: document.getElementById('bimestre')
+      bimestre: document.getElementById('bimestre'),
+      medida: document.getElementById('medida')
     };
 
     const buttons = {
@@ -245,7 +253,8 @@
 
     const displays = {
       resultText: document.getElementById('resultText'),
-      copyText: document.getElementById('copyText')
+      copyText: document.getElementById('copyText'),
+      measureSummary: document.getElementById('measureSummary')
     };
 
     // Función para generar el prompt
@@ -254,6 +263,7 @@
       const cPersonaje = state.personaje.trim() || '[PERSONAJE]';
       const cNombre = state.nombrePersonaje.trim() || '[NOMBRE_PERSONAJE]';
       const cFecha = state.fechaPersonaje.trim() || '[FECHA_PERSONAJE]';
+      const cMedida = state.medida.trim() || '20.5 cm width x 28 cm height';
       
       let titleContent = '';
       const cUnidad = state.unidad.trim().toUpperCase();
@@ -272,7 +282,7 @@
       return `TASK: Create a high-quality notebook divider cover for a school notebook.
 
 CANVAS SIZE
-Aspect ratio: 20.5 cm width x 28 cm height
+Aspect ratio / exact canvas size: ${cMedida}
 Orientation: vertical
 Print-ready layout
 Ultra high resolution (8K)
@@ -379,6 +389,9 @@ print-ready`;
     function updatePreview() {
       const prompt = getGeneratedPrompt();
       displays.resultText.textContent = prompt;
+      if (displays.measureSummary) {
+        displays.measureSummary.textContent = state.medida.trim() || '20.5 cm × 28 cm';
+      }
     }
 
     // Función para copiar al portapapeles
@@ -429,6 +442,7 @@ print-ready`;
       state.fechaPersonaje = '';
       state.unidad = '';
       state.bimestre = '';
+      state.medida = '';
       
       inputs.colorIntenso.value = '';
       inputs.personaje.value = '';
@@ -436,6 +450,7 @@ print-ready`;
       inputs.fechaPersonaje.value = '';
       inputs.unidad.value = '';
       inputs.bimestre.value = '';
+      inputs.medida.value = '';
       
       updatePreview();
     }
@@ -468,6 +483,11 @@ print-ready`;
 
     inputs.bimestre.addEventListener('input', (e) => {
       state.bimestre = e.target.value;
+      updatePreview();
+    });
+
+    inputs.medida.addEventListener('input', (e) => {
+      state.medida = e.target.value;
       updatePreview();
     });
 
