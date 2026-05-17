@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es" class="h-full">
 <head>
@@ -359,6 +358,12 @@
                 </div>
 
                 <div class="glass-inner rounded-[1.5rem] p-4">
+                  <label class="soft-label" for="tematicaDecoracion">[TEMATICA_DECORACION]</label>
+                  <textarea id="tematicaDecoracion" placeholder="Ej. Historia del Perú: escarapelas, mapas antiguos, líneas doradas, textura de pergamino, símbolos patrios sutiles..." rows="3" class="field-control resize-none"></textarea>
+                  <p class="helper-text">Define motivos, iconos, tramas, texturas o símbolos decorativos para el fondo y detalles editoriales.</p>
+                </div>
+
+                <div class="glass-inner rounded-[1.5rem] p-4">
                   <label class="soft-label" for="personaje">[PERSONAJE]</label>
                   <textarea id="personaje" placeholder="Ej. San Juan Pablo II, Pope John Paul II, wearing papal attire..." rows="3" class="field-control resize-none"></textarea>
                   <p class="helper-text">Descripción del personaje o de la imagen de referencia.</p>
@@ -413,6 +418,7 @@
   <script>
     const state = {
       colorIntenso: '',
+      tematicaDecoracion: '',
       personaje: '',
       nombrePersonaje: '',
       fechaPersonaje: '',
@@ -424,6 +430,7 @@
 
     const inputs = {
       colorIntenso: document.getElementById('colorIntenso'),
+      tematicaDecoracion: document.getElementById('tematicaDecoracion'),
       personaje: document.getElementById('personaje'),
       nombrePersonaje: document.getElementById('nombrePersonaje'),
       fechaPersonaje: document.getElementById('fechaPersonaje'),
@@ -455,6 +462,7 @@
     }
     function getGeneratedPrompt() {
       const cColor = state.colorIntenso.trim() || '[COLOR_INTENSO]';
+      const cTematicaDecoracion = state.tematicaDecoracion.trim() || '[TEMATICA_DECORACION]';
       const cPersonaje = state.personaje.trim() || '[PERSONAJE]';
       const cNombre = state.nombrePersonaje.trim() || '[NOMBRE_PERSONAJE]';
       const cFecha = state.fechaPersonaje.trim() || '[FECHA_PERSONAJE]';
@@ -482,10 +490,12 @@ Solid intense color background: ${cColor}
 Use a vibrant and highly saturated flat base tone.
 Do not use an obvious gradient as the main background base.
 Keep the background clean, smooth, and print-ready.
-Add a small set of subtle, elegant, thin-line religious or thematic motifs related to the character (${cPersonaje}).
-Possible motifs: dove, cross, rosary, papal emblem, church silhouette, open book, small star-like editorial marks.
-The motifs must be sparse, refined, low-contrast, and placed around the portrait without distracting from it.
-Use thin editorial line art, not playful doodles.
+Decoration theme for background motifs, icons, patterns, textures and editorial details: ${cTematicaDecoracion}
+Add a small set of subtle, elegant, thin-line decorative motifs related to this theme and coherent with the character (${cPersonaje}).
+Use motifs, icons, tramas, textures, symbols or visual patterns only when they support the requested theme.
+The decorative elements must be sparse, refined, low-contrast, and placed around the portrait without distracting from it.
+Use thin editorial line art, premium ornamental details, subtle patterns or elegant iconography, not playful doodles.
+Do not add random symbols outside the requested decoration theme.
 
 
 MAIN HEADER TITLE
